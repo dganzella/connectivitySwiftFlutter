@@ -1,4 +1,4 @@
-def PLUGIN = "connectivity";
+def PLUGIN = "daniloconnectivity";
 def ANDROIDX_WARNING = "flutterPluginsAndroidXWarning";
 gradle.buildFinished { buildResult ->
     if (buildResult.failure && !rootProject.ext.has(ANDROIDX_WARNING)) {
@@ -11,7 +11,7 @@ gradle.buildFinished { buildResult ->
     }
 }
 
-group 'io.flutter.plugins.connectivity'
+group 'net.doismundos.daniloconnectivity'
 version '1.0-SNAPSHOT'
 
 buildscript {
