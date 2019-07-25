@@ -4,7 +4,7 @@ import Reachability
 
 public class SwiftDaniloconnectivityPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     
-    public static var eventSink: FlutterEventSink?
+    var eventSink: FlutterEventSink?
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         
@@ -17,7 +17,7 @@ public class SwiftDaniloconnectivityPlugin: NSObject, FlutterPlugin, FlutterStre
         
     }
 
-    func findNetworkInfo(_ key: String?) -> String? {
+    /*func findNetworkInfo(_ key: String?) -> String? {
         var info: String? = nil
         let interfaceNames = CNCopySupportedInterfaces() as? [Any]
         for interfaceName in interfaceNames ?? [] {
@@ -38,9 +38,9 @@ public class SwiftDaniloconnectivityPlugin: NSObject, FlutterPlugin, FlutterStre
 
     func getBSSID() -> String? {
         return findNetworkInfo("BSSID")
-    }
+    }*/
 
-    func getWifiIP() -> String? {
+    /*func getWifiIP() -> String? {
         var address = "error"
         var interfaces: ifaddrs? = nil
         var temp_addr: ifaddrs? = nil
@@ -69,7 +69,7 @@ public class SwiftDaniloconnectivityPlugin: NSObject, FlutterPlugin, FlutterStre
 
         return address
         
-    }
+    }*/
 
     func status(from reachability: Reachability) -> String? {
         return  reachability.connection.description;
@@ -77,33 +77,47 @@ public class SwiftDaniloconnectivityPlugin: NSObject, FlutterPlugin, FlutterStre
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if (call.method == "check") {
-            result(status(from: Reachability()))
-        } else if (call.method == "wifiName") {
+            
+            let reachability = Reachability()!
+            
+            result(status(from: reachability))
+        } /*else if (call.method == "wifiName") {
             result(getWifiName())
         } else if (call.method == "wifiBSSID") {
             result(getBSSID())
         } else if (call.method == "wifiIPAddress") {
             result(getWifiIP())
-        } else {
+        }*/ else {
             result(FlutterMethodNotImplemented)
         }
     }
 
-    func onReachabilityDidChange(_ notification: Notification?) {
-        let curReach = notification?.object as? Reachability
-        eventSink(status(from: curReach))
+    func onReachabilityDidChange(notification: Notification) {
+        let curReach = notification.object as! Reachability;
+        
+        self.eventSink!(status(from: curReach));
     }
 
 
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        self.eventSink = eventSink
-        NotificationCenter.default.addObserver(self, selector: #selector(onReachabilityDidChange(_:)), name: kReachabilityChangedNotification, object: nil)
-        Reachability().startNotifier()
+        self.eventSink = events;
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onReachabilityDidChange(notification:)), name: Notification.Name.reachabilityChanged, object: nil)
+        
+        let reachability = Reachability()!
+        
+        try! reachability.startNotifier();
+        
         return nil
     }
 
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         
+        let reachability = Reachability()!
+        reachability.stopNotifier()
+        NotificationCenter.default.removeObserver(self)
+        self.eventSink = nil
+        return nil
     }
 
 
