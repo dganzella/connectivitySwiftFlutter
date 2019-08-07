@@ -96,11 +96,15 @@ class Connectivity {
 }
 
 ConnectivityResult _parseConnectivityResult(String state) {
-  switch (state) {
+  switch (state.toLowerCase()) {
     case 'wifi':
       return ConnectivityResult.wifi;
+    case 'cellular':
+      return ConnectivityResult.mobile;
     case 'mobile':
       return ConnectivityResult.mobile;
+    case 'no connection':
+      return ConnectivityResult.none;
     case 'none':
     default:
       return ConnectivityResult.none;
